@@ -170,6 +170,12 @@ def validate_policy(data: dict) -> tuple[list[str], list[str]]:
                 f"unmanaged_files.action must be one of "
                 f"{sorted(_VALID_UNMANAGED_ACTION)}, got '{action}'"
             )
+        exclude = uf.get("exclude")
+        if exclude is not None and not isinstance(exclude, list):
+            errors.append(
+                "unmanaged_files.exclude must be a YAML list of path globs "
+                f"(got {type(exclude).__name__})"
+            )
 
     # security.audit (install-time audit + external scanners)
     security = data.get("security")
@@ -278,7 +284,14 @@ def _build_policy(data: dict) -> ApmPolicy:
         uf_data = raw_uf
         action = uf_data.get("action")
         directories = _parse_tuple(uf_data.get("directories")) if "directories" in uf_data else None
-        unmanaged_files = UnmanagedFilesPolicy(action=action, directories=directories)
+        exclude = (
+            None
+            if ("exclude" not in uf_data or uf_data["exclude"] is None)
+            else _parse_tuple(uf_data["exclude"])
+        )
+        unmanaged_files = UnmanagedFilesPolicy(
+            action=action, directories=directories, exclude=exclude
+        )
 
     reg_data = data.get("registry_source") or {}
     registry_source = RegistrySourcePolicy(

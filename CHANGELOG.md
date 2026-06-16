@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `apm audit` now surfaces unmanaged files in governance directories as a single enriched report: each finding states a factual reason (`not tracked in apm.lock.yaml`), a lazy primitive-type tag (`[type: skill|agent|instruction|mcp]`), and a deny-conflict note (`matches deny rule (<pattern>)`) when the path matches the policy's own `dependencies.deny` / `mcp.deny`. A new `unmanaged_files.exclude` policy key suppresses known harness-managed paths, and a symlink guard prevents following links out of the workspace. This is drift / divergence visibility, not supply-chain-attack prevention. (closes #1775) (#1793)
 - Azure DevOps is now documented as a first-class marketplace authoring host: a `marketplace.sourceBase` of `https://dev.azure.com/{org}/{project}/_git` composes relative package sources and preserves the `dev.azure.com` host through to the consumer (authenticated with `ADO_APM_PAT`). The end-to-end authoring -> consume path is pinned by a hermetic test. (closes #1010) (#1810)
 - `apm install --target antigravity` and `apm compile -t antigravity` add
   Google Antigravity CLI (`agy`, successor to Gemini CLI) as a new target.
